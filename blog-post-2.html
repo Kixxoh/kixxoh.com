@@ -85,25 +85,25 @@
 				    <p>I recently set up a linux home server and the first project that i wanted to do was the ability to stream games from my server to other devices in my house (eg the Apple TV in the lounge, my Iphone, ect).  </p>
 					<p>Because i wanted to stream the games in a headless environment i decided that i'd use the containerized GoW (Games on Whales) application that uses a service called Wolf to stream my games to Moonlight applications on the network. Github link: https://github.com/games-on-whales </p>
 					<p>first i created a directory for my GoW content to download into using </p>
-				    <code> mkdir gamesonwhales </code>
+				    <code> $ mkdir gamesonwhales </code>
 					<p>Because im running an Nvidia gtx 2060 in my system, i had to do a few extra steps to set up the container as mentioned in the quickstart guide they provide https://games-on-whales.github.io/wolf/stable/user/quickstart.html.</p>
 					<p>once my nvidia drivers were updated i would have to make some SELinux changes to let the docker build container work properly as im on the Fedora 40 workstation.</p>
-					<code>setenforce 0</code>
+					<code> $ setenforce 0</code>
 					<p>is a command that turns off SELinux enforcement off and allows the container to run, it is a temporary fix and to do it properly i need to go through and fix the list of SELinux errors it spits out at me to give the container the proper permissions to run. </p>
 					<p>next i ran the build command:</p>
-					<code>sudo docker run     --name wolf     --network=host     -e XDG_RUNTIME_DIR=/tmp/sockets     -v /tmp/sockets:/tmp/sockets:rw     -e NVIDIA_DRIVER_VOLUME_NAME=nvidia-driver-vol     -v nvidia-driver-vol:/usr/nvidia:rw     -e HOST_APPS_STATE_FOLDER=/etc/wolf     -v /etc/wolf:/etc/wolf:rw     -v /media/storage/Emudeck/Emulation:/home/retro/emudeck:rw     -v /var/run/docker.sock:/var/run/docker.sock:rw     --device /dev/nvidia-uvm     --device /dev/nvidia-uvm-tools     --device /dev/dri/     --device /dev/nvidia-caps/nvidia-cap1     --device /dev/nvidia-caps/nvidia-cap2     --device /dev/nvidiactl     --device /dev/nvidia0     --device /dev/nvidia-modeset     --device /dev/uinput     --device /dev/uhid     -v /dev/:/dev/:rw     -v /run/udev:/run/udev:rw     --device-cgroup-rule "c 13:* rmw"     ghcr.io/games-on-whales/wolf:stable</code>
+					<code> $ sudo docker run     --name wolf     --network=host     -e XDG_RUNTIME_DIR=/tmp/sockets     -v /tmp/sockets:/tmp/sockets:rw     -e NVIDIA_DRIVER_VOLUME_NAME=nvidia-driver-vol     -v nvidia-driver-vol:/usr/nvidia:rw     -e HOST_APPS_STATE_FOLDER=/etc/wolf     -v /etc/wolf:/etc/wolf:rw     -v /media/storage/Emudeck/Emulation:/home/retro/emudeck:rw     -v /var/run/docker.sock:/var/run/docker.sock:rw     --device /dev/nvidia-uvm     --device /dev/nvidia-uvm-tools     --device /dev/dri/     --device /dev/nvidia-caps/nvidia-cap1     --device /dev/nvidia-caps/nvidia-cap2     --device /dev/nvidiactl     --device /dev/nvidia0     --device /dev/nvidia-modeset     --device /dev/uinput     --device /dev/uhid     -v /dev/:/dev/:rw     -v /run/udev:/run/udev:rw     --device-cgroup-rule "c 13:* rmw"     ghcr.io/games-on-whales/wolf:stable</code>
 					<p>This is the provided build command with one addition, i added the following line:</p>
-					<code>-v /media/storage/Emudeck/Emulation:/home/retro/emudeck:rw</code>
+					<code> $ -v /media/storage/Emudeck/Emulation:/home/retro/emudeck:rw</code>
 					<p>This line passes through the directory to the docker container using -v, the /media/storage/Emudeck/Emulation is the directory on my host machine and past the semicolon is /home/retro/emudeck which is the directory inside the container, finally :rw is giving the container read and write privileges for the directory and the files inside. 
 						This directory contains all of the existing Roms and metadata files i have gathered or were created via EmuDeck, an emulation aggregator that downloaded all the emulators and automates the creation of the required directories.</p>
 					<p>after following the rest of the Quickstart GoW guide that connects our moonlight sessions to Wolf, we had to edit our config.toml file so we can pass through our rom directory to the Docker container thats spun up by GoW when we open Pegasus which is our emulator aggregator.</p>
 					<p>to do this we ran the command</p>
-					<code>sudo docker exec -it 804047e25c68 bash</code>
+					<code> $ sudo docker exec -it 804047e25c68 bash</code>
 					<p>sudo docker exec -it 804047e25c68 bash</p>
 					<p>The docker container runs on a version of ubuntu so we we ran the command</p>
-					<code>sudo apt update</code>
+					<code> $ sudo apt update</code>
 					<p>which updated the apt repo used by ubuntu and then ran the command</p>
-					<code>sudo apt install vim</code>
+					<code> $ sudo apt install vim</code>
 					<p>so we could use vim to open and edit the config.toml. it was only after making this edit and installing vim into the container a few times we realised we could just go into /etc/wolf/cfg/ to open config.toml on the host system. still good to know though! </p>
 					<a href="https://made4dev.com"><img class="img-fluid" src="assets/images/Config-toml.png" alt="image"></a>
 					<p>once we were in the config.toml we went down to the Pegasus app area and we added our docker directory that contains the Rom files and then the directory in the Pegasus container we wanted to create +read and write privileges.</p>
